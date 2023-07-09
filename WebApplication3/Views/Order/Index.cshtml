@@ -1,0 +1,245 @@
+﻿
+<html>
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js" integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+    </body>
+
+</head>
+<body>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="container">
+                @using (Html.BeginForm("save", "Order", FormMethod.Post))
+                {
+                    <div class="form-group">
+                        <div>
+                            <label class="form-label">Müşteri Id</label>
+                            <input type="text" id="CustId" name="CustId" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="form-label">İsim</label>
+                            <input type="text" id="CustName" name="CustName" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="form-label">Soyisim</label>
+                            <input type="text" id="CustSurname" name="CustSurname" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="form-label">Ücret</label>
+                            <input type="text" id="TotalAmount" name="TotalAmount" class="form-control" />
+                        </div>
+
+                        <div>
+                            <button type="button" id="save" class="btn btn-info" onclick="addOrder()">Kaydet</button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <div class="panel-body">
+                <table id="CustomerT" class="table table-bordered" cellspacing="0" width="100%"  border="1"style="float:left">
+                    <thead>
+                        <tr>
+                            <th>Müşteri Id</th>
+                            <th>İsim</th>
+                            <th>Soyisim</th>
+                            <th>Kişi Seç</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-sm-8">
+            <div class="panel-body">
+                <table id="ProductT" class="table table-bordered" cellspacing="0" width="100%" border="1"style="float:left">
+                    <thead>
+                        <tr>
+                            <th>Ürün İsmi</th>
+                            <th>Adedi</th>
+                            <th>Fiyatı</th>
+                            <th>SatinAl</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        
+        <div class="col-sm-8">
+            <div class="panel-body">
+                <table id="OrderT" class="table table-bordered" cellspacing="0" width="100%"  border="1"style="float:left">
+                    <thead>
+                        <tr>
+                            <th>Müşteri Id</th>
+                            <th>İsim</th>
+                            <th>Soyisim</th>
+                            <th>Total Ücret</th>
+                            <th>Güncelle</th>
+                            <th>Sil</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    @section Scripts
+    {
+        <script src="~/Scripts/jquery-3.4.1.js"></script>
+        <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+        <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+        <script>
+
+            getall();
+            getCust();
+            getProduct();
+            var isNew = true;
+
+          function addOrder() {
+              var url = '';
+              var data = '';
+              var method;
+              if (true) {
+                  url = '@Url.Action("save", "Order")';
+                  data = "{CustName : '" + $('#CustName').val() +
+                      "',CustSurname : '" + $('#CustSurname').val() + "',TotalAmount : '" +
+                      $('#TotalAmount').val() + "',CustId : '" + $('#CustId').val() + "'}";
+                  method = 'POST';
+              }
+              else
+              {
+                   url = '@Url.Action("save", "Order")';
+                  data = "{CustName : '" + $('#CustName').val() + "',CustSurname : '"
+                      + $('#CustSurname').val() + "',TotalAmount : '" + $('#TotalAmount').val() +
+                      "',CustId : '" + $('#CustId').val() + "',OrderId:'" + ID + "'}";
+                  method = 'POST';
+              }
+              $.ajax({
+                  type: method,
+                  url: url,
+                  dataType: 'JSON',
+                  contentType: "application/json; charset=utf-8",
+                  data: data,
+                  success: function (data) {
+                      if (isNew) {
+                          alert("Eklendi");
+                          getall(); getCust(); getProduct();
+                      }
+                      else {
+                          alert("Güncellendi");
+                          getall();  getCust(); getProduct();
+                      }
+                  }
+              });
+            }
+          function getCust() {
+              $('#CustomerT').dataTable().fnDestroy();
+              $('#CustomerT').dataTable({
+                  "ajax": {
+                      "url":'@Url.Action("GetCustomer", "Customer")',
+                      "type": "get",
+                      "dataType":"JSON"
+                  },
+                  "columns":
+                      [ { data: "CId" }, { data: "CustomerName" }, { data: "CustomerSurname" },
+                          {
+                              data: "CId", "render": function (data)
+                              {
+                                  return '<button class="btn btn-success" onclick="get_Cust(' + data + ')">Seç</button>';
+                              }  } ]  })}
+          function getProduct() {
+              $('#ProductT').dataTable().fnDestroy();
+              $('#ProductT').dataTable({
+                  "ajax": {
+                      "url":'@Url.Action("GetProduct", "Product")',
+                      "type": "get",
+                      "dataType":"JSON"
+                  },
+                  "columns":
+                      [  { data: "ProductName" },  { data: "Quantity" },   { data: "Price" },
+                          {
+                              data: "ProductId", "render": function (data)
+                              {
+                                  return '<button class="btn btn-success" onclick="get_Product(' + data + ')">SatinAl</button>';
+                              }   }   ]  })  }
+          function getall() {
+              $('#OrderT').dataTable().fnDestroy();
+              $('#OrderT').dataTable({
+                  "ajax": {
+                      "url":'@Url.Action("GetOrder", "Order")',
+                      "type": "get",
+                      "dataType":"JSON"
+                  },
+                  "columns":
+                      [
+                          { data: "CustId" },
+                          { data: "CustName" },
+                          { data: "CustSurname" },
+                          { data: "TotalAmount" },
+                          {
+                              data: "OrderId", "render": function (data)
+                              {
+                                  return '<button class="btn btn-success" onclick="get_Order(' + data + ')">Güncelle</button>';
+                              }
+                          },
+                          {
+                              data: "OrderId", "render": function (data) {
+                                  return '<button class="btn btn-danger" onclick="get_delete(' + data + ')">Sil</button>';
+                              }     } ]}) }
+            function get_Cust(CId) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/Customer/Edit?CId=' + CId,
+                    dataType: 'JSON',
+                    contentType: "application/json;charset=utf-8",
+                    success: function (data) {
+                        isNew = false;
+                        ID = data.CId;
+                        $('#CustId').val(data.CId); $('#CustName').val(data.CustomerName);  $('#CustSurname').val(data.CustomerSurname);
+                    }    });  }
+            function get_Product(ProductId) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/Product/Edit?ProductId=' + ProductId,
+                    dataType: 'JSON',
+                    contentType: "application/json;charset=utf-8",
+                    success: function (data) {
+                        isNew = false;
+                        ID = data.ProductId;
+                        $('#TotalAmount').val(data.Price);
+                    }  }); }
+            function get_Order(OrderId)
+            {
+                $.ajax({
+                    type: 'GET',
+                    url: '/Order/Edit?OrderId=' + OrderId,
+                    dataType: 'JSON',
+                    contentType: "application/json;charset=utf-8",
+                    success: function (data)
+                    {
+                        isNew = false;
+                        ID = data.OrderId;
+                        $('#CustId').val(data.CustId);
+                        $('#CustName').val(data.CustName);
+                        $('#CustSurname').val(data.CustSurname);
+                        $('#TotalAmount').val(data.TotalAmount);    }  });  }
+            function get_delete(OrderId) {
+                $.ajax({
+
+                    type: 'POST',
+                    url: '/Order/Remove?OrderId=' + OrderId,
+                    dataType: 'JSON',
+                    contentType: "application/json;charset=utf-8",
+
+                    success: function (data) {
+                        alert("Silindi");
+                        getall();       }    }) }
+        </script> }
+</body>
+</html>

@@ -1,0 +1,195 @@
+﻿
+<html>
+<head>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" 
+          rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" 
+            integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.11.8/dist/umd/popper.min.js"
+            integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"
+            integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="//cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css" />
+   
+</head>
+<body>
+    <div class="row">
+        <div class="col-sm-4">
+            <div class="container">
+                @using (Html.BeginForm("save", "Employee", FormMethod.Post))
+                 {
+                    <div class="form-group">
+                        <div>
+                            <label class="form-label">İsim</label>
+                            <input type="text" id="EmployeeName" name="EmployeeName" class="form-control" />
+                        </div>
+                        <div>
+                            <label class="form-label">Soyisim</label>
+                            <input type="text" id="Surname" name="Surname" class="form-control"  />
+                        </div>
+                        <div>
+                            <label class="form-label">Pozisyon</label>
+                            <input type="text" id="Position" name="Position" class="form-control"  />
+                        </div>
+                        <div>
+                            <label class="form-label">Ofis</label>
+                            <input type="text" id="Office" name="Office" class="form-control"  />
+                        </div>
+                        <div>
+                            <label class="form-label">Maaş</label>
+                            <input type="text" id="Salary" name="Salary" class="form-control"  />
+                        </div>
+
+                        <div>
+                            <button type="button" id="save" class="btn btn-info" onclick="addEmployee()">Ekle</button>
+                        </div>
+                    </div>
+                 }
+            </div>
+        </div>
+        <div class="col-sm-8">
+                <div class="panel-body">
+                    <table id="EmployeeT" class="table table-bordered" cellspacing="0" width="100%" align="center">
+                        <thead>
+                            <tr>
+                                <th>İsim</th>
+                                <th>Soyisim</th>
+                                <th>Pozisyon</th>
+                                <th>Ofis</th>
+                                <th>Maaş</th>
+                                <th>Güncelle</th>
+                                <th>Sil</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>       
+        </div>
+    </div>
+
+    @section Scripts
+    {
+        <script src="~/Scripts/jquery-3.4.1.js"></script>
+        <script src="~/Scripts/jquery-3.4.1.min.js"></script>
+        <script src="//cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+        <script>
+
+          getall();
+            var isNew = true;
+
+          function addEmployee() {
+              var url = '';
+              var data = '';
+              var method;
+              if (isNew == true) {
+                  url = '@Url.Action("save", "Employee")';
+                  //'Employee/save';
+                  data = "{EmployeeName : '" + $('#EmployeeName').val() +
+                      "',Surname : '" + $('#Surname').val() + "',Position : '" +
+                      $('#Position').val() + "',Office : '" + $('#Office').val() +
+                      "',Salary : '" + $('#Salary').val() + "'}";
+                  method = 'POST';
+              }
+              else
+              {
+                   url = '@Url.Action("save", "Employee")';
+                  //'Employee/save';
+                  data = "{EmployeeName : '" + $('#EmployeeName').val()
+                      + "',Surname : '"
+                      + $('#Surname').val() + "',Position : '"
+                      + $('#Position').val() + "',Office : '"
+                      + $('#Office').val() + "',Salary : '"
+                      + $('#Salary').val() + "',Id:'" + ID + "'}";
+                  method = 'POST';
+
+              }
+
+              $.ajax({
+
+                  type: method,
+                  url: url,
+                  dataType: 'JSON',
+                  contentType: "application/json; charset=utf-8",
+                  data: data,
+                  success: function (data) {
+                      if (isNew) {
+                          alert("Eklendi");
+                          getall();
+                      }
+                      else {
+                          alert("Güncellendi");
+                          getall();
+                      }
+                  }
+              });
+          }
+
+          function getall() {
+              $('#EmployeeT').dataTable().fnDestroy();
+              $('#EmployeeT').dataTable({
+                  "ajax": {
+                      "url":'@Url.Action("GetEmployee", "Employee")',
+                      //'/Employee/GetEmployee',
+                      "type": "get",
+                      "dataType":"JSON"
+                  },
+                  "columns":
+                      [
+                          { data: "EmployeeName" },
+                          { data: "Surname" },
+                          { data: "Position" },
+                          { data: "Office" },
+                          { data: "Salary" },
+                          {
+                              data: "Id", "render": function (data)
+                              {
+                                  return '<button class="btn btn-success" onclick="get_Employee(' + data + ')">Güncelle</button>';
+                              }
+                          },
+                          {
+                              data: "Id", "render": function (data) {
+                                  return '<button class="btn btn-danger" onclick="get_delete(' + data + ')">Sil</button>';
+                              }
+                          }
+                  ]
+              })
+          }
+
+            function get_Employee(Id)
+            {
+                $.ajax({
+                    type: 'GET',
+                    url: '/Employee/Edit?ID='+Id,
+                    dataType: 'JSON',
+                    contentType: "application/json;charset=utf-8",
+                    success: function (data)
+                    {
+                        isNew = false;
+                        ID = data.Id;
+                        $('#EmployeeName').val(data.EmployeeName);
+                        $('#Surname').val(data.Surname);
+                        $('#Position').val(data.Position);
+                        $('#Office').val(data.Office);
+                        $('#Salary').val(data.Salary);
+                    }
+                });
+            }
+            function get_delete(Id)
+            {
+                $.ajax({
+                    type: 'POST',
+                    url: '/Employee/Remove?Id=' + Id,
+                    dataType: 'JSON',
+                    contentType: "application/json;charset=utf-8",
+
+                    success: function (data)
+                    {
+                        alert("Silindi");
+                        getall();
+                    }
+                })
+            }
+        </script>
+    }
+</body>
+</html>
